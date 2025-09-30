@@ -3,20 +3,27 @@ package main
 import (
 	"fmt"
 
+	raygui "github.com/gen2brain/raylib-go/raygui"
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 const (
-	PLAYER_SPEED = 2
+	PLAYER_SPEED = 200
 )
 
 type Player struct {
-	x   int
-	y   int
-	dir float32
+	pos   rl.Vector2
+	dir   rl.Vector2
+	speed float32
 }
 
-var player Player = Player{x: 400, y: 225, dir: 0.0}
+type State struct {
+	in_menu   bool
+	is_paused bool
+}
+
+var player Player = Player{pos: rl.Vector2{X: 100, Y: 100}, dir: rl.Vector2{X: 0, Y: 0}, speed: PLAYER_SPEED}
+var game_state State = State{in_menu: true, is_paused: true}
 
 func main() {
 	screenWidth := int32(800)
@@ -30,13 +37,24 @@ func main() {
 
 	for !rl.WindowShouldClose() {
 
+		dtime := rl.GetFrameTime()
+
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.RayWhite)
 
-		process_inputs()
+		if game_state.in_menu {
+			if raygui.Button(rl.NewRectangle(350, 200, 100, 30), "Start Game") {
+				game_state.in_menu = false
+			}
+		} else {
 
-		rl.DrawTexture(texture, screenWidth/2-texture.Width/2, screenHeight/2-texture.Height/2, rl.White)
-		rl.DrawText("this IS a texture!", 360, 370, 10, rl.Gray)
+			process_inputs()
+			player.pos.X += player.dir.X * player.speed * dtime
+			player.pos.Y += player.dir.Y * player.speed * dtime
+
+			rl.DrawTexture(texture, int32(player.pos.X)-texture.Width/2, int32(player.pos.Y)-texture.Height/2, rl.White)
+			rl.DrawText("this IS a texture!", 360, 370, 10, rl.Gray)
+		}
 
 		rl.EndDrawing()
 	}
@@ -48,25 +66,26 @@ func main() {
 
 func process_inputs() {
 
-	rl.NewVector2(float32(screenWidth)/2, float32(screenHeight)/2)
+	player.dir = rl.Vector2Zero()
 
 	// keyboard
-	if rl.IsKeyDown(rl.KeyRight) {
-		ballPosition.X += 0.8
+	if rl.IsKeyDown(rl.KeyRight) || rl.IsKeyDown(rl.KeyD) {
+		player.dir.X += 0.8
 	}
-	if rl.IsKeyDown(rl.KeyLeft) {
-		ballPosition.X -= 0.8
+	if rl.IsKeyDown(rl.KeyLeft) || rl.IsKeyDown(rl.KeyA) {
+		player.dir.X -= 0.8
 	}
-	if rl.IsKeyDown(rl.KeyUp) {
-		ballPosition.Y -= 0.8
+	if rl.IsKeyDown(rl.KeyUp) || rl.IsKeyDown(rl.KeyW) {
+		player.dir.Y -= 0.8
 	}
-	if rl.IsKeyDown(rl.KeyDown) {
-		ballPosition.Y += 0.8
+	if rl.IsKeyDown(rl.KeyDown) || rl.IsKeyDown(rl.KeyS) {
+		player.dir.Y += 0.8
 	}
+	player.dir = rl.Vector2Normalize(player.dir)
 
 	// gamepad
 	var gamepad int32 = 0 // which gamepad to display
-	fmt.Println(rl.GetGamepadName(gamepad))
+	// fmt.Println(rl.GetGamepadName(gamepad))
 	if rl.IsGamepadAvailable(gamepad) {
 		rl.DrawText(fmt.Sprintf("GP1: %s", rl.GetGamepadName(gamepad)), 10, 10, 10, rl.Black)
 
@@ -119,21 +138,21 @@ func process_inputs() {
 		}
 
 		// Draw axis: left joystick
-		rl.DrawCircle(259, 152, 39, rl.Black)
-		rl.DrawCircle(259, 152, 34, rl.LightGray)
-		rl.DrawCircle(int32(259+(rl.GetGamepadAxisMovement(gamepad, rl.GamepadAxisLeftX)*20)),
-			int32(152-(rl.GetGamepadAxisMovement(gamepad, rl.GamepadAxisLeftY)*20)), 25, rl.Black)
+		// rl.DrawCircle(259, 152, 39, rl.Black)
+		// rl.DrawCircle(259, 152, 34, rl.LightGray)
+		// rl.DrawCircle(int32(259+(rl.GetGamepadAxisMovement(gamepad, rl.GamepadAxisLeftX)*20)),
+		// 	int32(152-(rl.GetGamepadAxisMovement(gamepad, rl.GamepadAxisLeftY)*20)), 25, rl.Black)
 
 		// Draw axis: right joystick
-		rl.DrawCircle(461, 237, 38, rl.Black)
-		rl.DrawCircle(461, 237, 33, rl.LightGray)
-		rl.DrawCircle(int32(461+(rl.GetGamepadAxisMovement(gamepad, rl.GamepadAxisRightX)*20)),
-			int32(237-(rl.GetGamepadAxisMovement(gamepad, rl.GamepadAxisRightY)*20)), 25, rl.Black)
+		// rl.DrawCircle(461, 237, 38, rl.Black)
+		// rl.DrawCircle(461, 237, 33, rl.LightGray)
+		// rl.DrawCircle(int32(461+(rl.GetGamepadAxisMovement(gamepad, rl.GamepadAxisRightX)*20)),
+		// 	int32(237-(rl.GetGamepadAxisMovement(gamepad, rl.GamepadAxisRightY)*20)), 25, rl.Black)
 
 		// Draw axis: left-right triggers
-		rl.DrawRectangle(170, 30, 15, 70, rl.Gray)
-		rl.DrawRectangle(604, 30, 15, 70, rl.Gray)
-		rl.DrawRectangle(170, 30, 15, int32(((1.0+rl.GetGamepadAxisMovement(gamepad, rl.GamepadAxisLeftTrigger))/2.0)*70), rl.Red)
-		rl.DrawRectangle(604, 30, 15, int32(((1.0+rl.GetGamepadAxisMovement(gamepad, rl.GamepadAxisRightTrigger))/2.0)*70), rl.Red)
+		// rl.DrawRectangle(170, 30, 15, 70, rl.Gray)
+		// rl.DrawRectangle(604, 30, 15, 70, rl.Gray)
+		// rl.DrawRectangle(170, 30, 15, int32(((1.0+rl.GetGamepadAxisMovement(gamepad, rl.GamepadAxisLeftTrigger))/2.0)*70), rl.Red)
+		// rl.DrawRectangle(604, 30, 15, int32(((1.0+rl.GetGamepadAxisMovement(gamepad, rl.GamepadAxisRightTrigger))/2.0)*70), rl.Red)
 	}
 }
