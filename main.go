@@ -48,10 +48,25 @@ func main() {
 
 func process_inputs() {
 
+	rl.NewVector2(float32(screenWidth)/2, float32(screenHeight)/2)
+
+	// keyboard
+	if rl.IsKeyDown(rl.KeyRight) {
+		ballPosition.X += 0.8
+	}
+	if rl.IsKeyDown(rl.KeyLeft) {
+		ballPosition.X -= 0.8
+	}
+	if rl.IsKeyDown(rl.KeyUp) {
+		ballPosition.Y -= 0.8
+	}
+	if rl.IsKeyDown(rl.KeyDown) {
+		ballPosition.Y += 0.8
+	}
+
+	// gamepad
 	var gamepad int32 = 0 // which gamepad to display
-
 	fmt.Println(rl.GetGamepadName(gamepad))
-
 	if rl.IsGamepadAvailable(gamepad) {
 		rl.DrawText(fmt.Sprintf("GP1: %s", rl.GetGamepadName(gamepad)), 10, 10, 10, rl.Black)
 
