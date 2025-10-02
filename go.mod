@@ -1,4 +1,4 @@
-module gamesafoot
+module 1942-go
 
 go 1.25.0
 

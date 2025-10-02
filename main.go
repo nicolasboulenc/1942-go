@@ -27,9 +27,12 @@ var game_state State = State{in_menu: true, is_paused: true}
 
 func main() {
 	screenWidth := int32(800)
-	screenHeight := int32(450)
+	screenHeight := int32(400)
 
-	rl.InitWindow(screenWidth, screenHeight, "gamesafoot")
+	rl.InitWindow(screenWidth, screenHeight, "1942-go")
+	scale_dpi := rl.GetWindowScaleDPI()
+	fmt.Println("scale %i %i", scale_dpi.X, scale_dpi.Y)
+
 	// NOTE: Textures MUST be loaded after Window initialization (OpenGL context is required)
 	texture := rl.LoadTexture("images/UK_Spitfire.png") // Texture loading
 
