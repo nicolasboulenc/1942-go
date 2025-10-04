@@ -65,7 +65,8 @@ func main() {
 
 		// logic
 		if player.is_firing && ntime-player.fire_prev_time >= 1/float64(player.fire_rate) {
-			projectiles = append(projectiles, Projectile{enabled: true, pos: rl.Vector2{X: player.pos.X, Y: player.pos.Y}})
+			projectile := Projectile{enabled: true, pos: rl.Vector2{X: player.pos.X, Y: player.pos.Y}}
+			projectiles = append(projectiles, projectile)
 			player.fire_prev_time = ntime
 		}
 
@@ -87,8 +88,7 @@ func main() {
 		// draw to screen
 		rl.BeginDrawing()
 		rl.DrawTextureRec(buffer.Texture, rl.Rectangle{X: 0, Y: 0, Width: float32(buffer.Texture.Width), Height: float32(-buffer.Texture.Height)}, rl.Vector2{X: 0, Y: 0}, rl.White)
-		rl.DrawText("", 360, 370, 10, rl.Gray)
-		rl.DrawText(fmt.Sprintf("this IS a texture! %d", player.is_firing), 10, 10, 10, rl.Gray)
+		rl.DrawText(fmt.Sprintf("this IS a texture!", player.is_firing), 10, 10, 10, rl.Gray)
 		rl.EndDrawing()
 	}
 
