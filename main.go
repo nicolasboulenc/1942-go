@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 
-	raygui "github.com/gen2brain/raylib-go/raygui"
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
@@ -26,12 +25,14 @@ var player Player = Player{pos: rl.Vector2{X: 100, Y: 100}, dir: rl.Vector2{X: 0
 var game_state State = State{in_menu: true, is_paused: true}
 
 func main() {
-	screenWidth := int32(800)
+	screenWidth := int32(400)
 	screenHeight := int32(400)
 
+	rl.SetConfigFlags(rl.FlagWindowHighdpi)
 	rl.InitWindow(screenWidth, screenHeight, "1942-go")
-	scale_dpi := rl.GetWindowScaleDPI()
-	fmt.Println("scale %i %i", scale_dpi.X, scale_dpi.Y)
+	rl.SetWindowPosition(10, 10)
+
+	buffer := rl.LoadRenderTexture(screenWidth, screenHeight)
 
 	// NOTE: Textures MUST be loaded after Window initialization (OpenGL context is required)
 	texture := rl.LoadTexture("images/UK_Spitfire.png") // Texture loading
@@ -42,23 +43,18 @@ func main() {
 
 		dtime := rl.GetFrameTime()
 
-		rl.BeginDrawing()
+		process_inputs()
+		player.pos.X += player.dir.X * player.speed * dtime
+		player.pos.Y += player.dir.Y * player.speed * dtime
+
+		rl.BeginTextureMode(buffer)
 		rl.ClearBackground(rl.RayWhite)
+		rl.DrawTexture(texture, int32(player.pos.X)-texture.Width/2, int32(player.pos.Y)-texture.Height/2, rl.White)
+		rl.EndTextureMode()
 
-		if game_state.in_menu {
-			if raygui.Button(rl.NewRectangle(350, 200, 100, 30), "Start Game") {
-				game_state.in_menu = false
-			}
-		} else {
-
-			process_inputs()
-			player.pos.X += player.dir.X * player.speed * dtime
-			player.pos.Y += player.dir.Y * player.speed * dtime
-
-			rl.DrawTexture(texture, int32(player.pos.X)-texture.Width/2, int32(player.pos.Y)-texture.Height/2, rl.White)
-			rl.DrawText("this IS a texture!", 360, 370, 10, rl.Gray)
-		}
-
+		rl.BeginDrawing()
+		rl.DrawTextureRec(buffer.Texture, rl.Rectangle{X: 0, Y: 0, Width: float32(buffer.Texture.Width), Height: float32(-buffer.Texture.Height)}, rl.Vector2{X: 0, Y: 0}, rl.White)
+		rl.DrawText("this IS a texture!", 360, 370, 10, rl.Gray)
 		rl.EndDrawing()
 	}
 
