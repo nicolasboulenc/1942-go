@@ -1,0 +1,32 @@
+{
+    "window": {
+        "title": "1942"
+    },
+    "player": {
+        "velocity": 200
+    },
+    "weapons": [{
+        "name":"alternate",
+        "projectile_velocity":400,
+        "projectile_damage":2,
+        "projectile_direction":{"x":0,"y":1},
+        "fire_type":1,
+        "fire_rate":16
+    },
+    {
+        "name":"dual",
+        "projectile_velocity":400,
+        "projectile_damage":2,
+        "projectile_direction":{"x":0,"y":1},
+        "fire_type":2,
+        "fire_rate":16
+    },
+    {
+        "name":"quad",
+        "projectile_velocity":400,
+        "projectile_damage":2,
+        "projectile_direction":{"x":0.86,"y":0.5},
+        "fire_type":2,
+        "fire_rate":16
+    }]
+}

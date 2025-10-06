@@ -1,10 +1,11 @@
 package main
 
 import (
-	"bufio"
+	"encoding/json"
+	"fmt"
+	"io"
 	"log"
 	"os"
-	"strconv"
 	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -32,10 +33,27 @@ type Player struct {
 }
 
 type Config struct {
-	player_velocity     float32
-	player_fire_rate    int
-	projectile_velocity float32
-	bonus_velocity      float32
+	Window struct {
+		Title string `json:"title"`
+	}
+	Player struct {
+		Velocity float32 `json:"velocity"`
+	}
+	Weapons []WeaponConfig `json:"weapons"`
+}
+
+type WeaponConfig struct {
+	Name                string  `json:"name"`
+	FireType            int     `json:"fire_type"`
+	FireRate            float64 `json:"fire_rate"`
+	ProjectileVelocity  float32 `json:"projectile_velocity"`
+	ProjectileDamage    float32 `json:"projectile_damage"`
+	ProjectileDirection Vector2 `json:"projectile_direction"`
+}
+
+type Vector2 struct {
+	X float32 `json:"x"`
+	Y float32 `json:"y"`
 }
 
 type Projectile struct {
@@ -59,13 +77,10 @@ type Debug struct {
 }
 
 type Weapon struct {
-	projectile_velocity float32 // 1.2x
-	projectile_damage   float32
-	state               int
-	fire_type           int     // single, burst, auto, etc
-	fire_rate           float64 // 2x
-	fire_prev_time      float64
-	is_firing           bool
+	conf           WeaponConfig
+	state          int
+	fire_prev_time float64
+	is_firing      bool
 }
 
 var player Player
@@ -76,7 +91,7 @@ var config Config
 
 func main() {
 
-	game_init()
+	gameInit()
 
 	rl.SetConfigFlags(rl.FlagWindowHighdpi)
 	rl.InitWindow(game_state.screen_width, game_state.screen_height, "1942-go")
@@ -94,36 +109,35 @@ func main() {
 		game_state.prev_time = ntime
 
 		// inputs
-		process_inputs()
-		player.pos.X += player.dir.X * config.player_velocity * player.velocity_modifier * float32(dtime)
-		player.pos.Y += player.dir.Y * config.player_velocity * player.velocity_modifier * float32(dtime)
+		gameProcessInputs()
+		player.pos.X += player.dir.X * config.Player.Velocity * player.velocity_modifier * float32(dtime)
+		player.pos.Y += player.dir.Y * config.Player.Velocity * player.velocity_modifier * float32(dtime)
 
 		// logic
 		if player.is_firing {
 			for i := 0; i < len(player.weapons); i++ {
 				weapon := &player.weapons[i]
-				if ntime-weapon.fire_prev_time >= 1/weapon.fire_rate {
-					projectile := player_weapon_fire(weapon, player)
-					projectiles = append(projectiles, projectile)
+				if ntime-weapon.fire_prev_time >= 1/weapon.conf.FireRate {
+					playerWeaponFire(weapon, player, &projectiles)
 				}
 			}
 		}
 
+		view_rect := rl.Rectangle{X: 0, Y: 0, Width: float32(game_state.screen_width), Height: float32(game_state.screen_height)}
 		for i := 0; i < len(projectiles); i++ {
 
-			projectiles[i].pos.Y -= config.projectile_velocity * float32(dtime)
-
+			projectiles[i].pos.X += projectiles[i].velocity * projectiles[i].dir.X * float32(dtime)
+			projectiles[i].pos.Y -= projectiles[i].velocity * projectiles[i].dir.Y * float32(dtime)
 			proj_rect := rl.Rectangle{X: projectiles[i].pos.X, Y: projectiles[i].pos.Y, Width: 1, Height: 10}
-			view_rect := rl.Rectangle{X: 0, Y: 0, Width: float32(game_state.screen_width), Height: float32(game_state.screen_height)}
 			if !rl.CheckCollisionRecs(proj_rect, view_rect) {
 				projectiles[i].enabled = false
 			}
 		}
 
 		if debug.conf_check_prev_time+DEBUG_CONF_INTERVAL > ntime {
-			current_time := config_check()
-			if debug.conf_prev_time != current_time {
-				config_load()
+			latest_time := configFileCheck()
+			if debug.conf_prev_time != latest_time {
+				configFileLoad()
 			}
 			debug.conf_check_prev_time = ntime
 		}
@@ -153,56 +167,24 @@ func main() {
 	rl.CloseWindow()
 }
 
-func game_init() {
+func gameInit() {
+
+	debug.conf_prev_time = configFileCheck()
+	configFileLoad()
 
 	player = Player{pos: rl.Vector2{X: 100, Y: 100}, dir: rl.Vector2{X: 0, Y: 0}, velocity_modifier: 1, fire_rate_modifier: 1, is_firing: false, weapons: make([]Weapon, 0, 3)}
 	game_state = GameState{in_menu: true, is_paused: true, screen_width: 640, screen_height: 480}
 	projectiles = make([]Projectile, 0, 10)
 
-	weapon := Weapon{projectile_velocity: 400, projectile_damage: 2, state: 0, fire_type: FIRE_TYPE_ALTERNATE, fire_rate: 16, fire_prev_time: 0, is_firing: false}
-	player_weapon_add(weapon)
-
-	debug.conf_prev_time = config_check()
-	config_load()
+	weaponConf := configWeaponGet(&config, "alternate")
+	// weaponConf := WeaponConfig{Name: "basic", FireType: FIRE_TYPE_ALTERNATE, FireRate: 8, ProjectileVelocity: 400, ProjectileDamage: 2}
+	weapon := Weapon{conf: *weaponConf, state: 0, fire_prev_time: 0, is_firing: false}
+	playerWeaponAdd(weapon)
 
 	game_state.prev_time = rl.GetTime()
 }
 
-func player_weapon_add(weapon Weapon) {
-
-	// check the weapon doesn already exist
-	for i := 0; i < len(player.weapons); i++ {
-		if player.weapons[i].fire_type == weapon.fire_type {
-			// remove that weapon
-			player.weapons = append(player.weapons[:i], player.weapons[i+1:]...)
-			break
-		}
-	}
-
-	player.weapons = append(player.weapons, weapon)
-}
-
-func player_weapon_fire(weapon *Weapon, player Player) Projectile {
-
-	var origin rl.Vector2
-	origin.Y = player.pos.Y
-
-	switch weapon.fire_type {
-	case FIRE_TYPE_ALTERNATE:
-		if weapon.state == 0 {
-			weapon.state = 1
-			origin.X = player.pos.X - 10
-		} else {
-			weapon.state = 0
-			origin.X = player.pos.X + 10
-		}
-		weapon.fire_prev_time = rl.GetTime()
-		return Projectile{enabled: true, pos: origin, velocity: weapon.projectile_velocity}
-	}
-	return Projectile{enabled: false}
-}
-
-func process_inputs() {
+func gameProcessInputs() {
 
 	player.dir = rl.Vector2Zero()
 	player.is_firing = false
@@ -227,14 +209,84 @@ func process_inputs() {
 		player.is_firing = true
 	}
 	if rl.IsKeyDown(rl.KeyU) {
-		weapon := Weapon{projectile_velocity: 400, projectile_damage: 2, fire_type: FIRE_TYPE_ALTERNATE, fire_rate: 400, fire_prev_time: 0, is_firing: false}
-		player.weapons = append(player.weapons, weapon)
+		configWeapon := configWeaponGet(&config, "quad")
+		playerWeaponSwap(configWeapon)
 	}
 	player.dir = rl.Vector2Normalize(player.dir)
 }
 
-func config_check() time.Time {
-	fileInfo, err := os.Stat("1942.conf")
+func playerWeaponAdd(weapon Weapon) {
+
+	// check the weapon doesn already exist
+	for i := 0; i < len(player.weapons); i++ {
+		if player.weapons[i].conf.FireType == weapon.conf.FireType {
+			// remove that weapon
+			player.weapons = append(player.weapons[:i], player.weapons[i+1:]...)
+			break
+		}
+	}
+
+	player.weapons = append(player.weapons, weapon)
+}
+
+func playerWeaponSwap(weaponConfig *WeaponConfig) {
+
+	player.weapons[0].conf = *weaponConfig
+}
+
+func playerWeaponFire(weapon *Weapon, player Player, projectiles *[]Projectile) {
+
+	var origin rl.Vector2
+	origin.Y = player.pos.Y
+
+	switch weapon.conf.FireType {
+	case FIRE_TYPE_ALTERNATE:
+		weapon.fire_prev_time = rl.GetTime()
+		if weapon.state == 0 {
+			weapon.state = 1
+			origin.X = player.pos.X - 10
+		} else {
+			weapon.state = 0
+			origin.X = player.pos.X + 10
+		}
+		projectile := Projectile{enabled: true, pos: origin, dir: rl.Vector2(weapon.conf.ProjectileDirection), velocity: weapon.conf.ProjectileVelocity}
+		*projectiles = append(*projectiles, projectile)
+	case FIRE_TYPE_DUAL:
+		weapon.fire_prev_time = rl.GetTime()
+
+		origin.X = player.pos.X - 10
+		projectile := Projectile{enabled: true, pos: origin, dir: rl.Vector2(weapon.conf.ProjectileDirection), velocity: weapon.conf.ProjectileVelocity}
+		*projectiles = append(*projectiles, projectile)
+
+		origin.X = player.pos.X + 10
+		projectile = Projectile{enabled: true, pos: origin, dir: rl.Vector2(weapon.conf.ProjectileDirection), velocity: weapon.conf.ProjectileVelocity}
+		*projectiles = append(*projectiles, projectile)
+	case FIRE_TYPE_QUAD:
+		weapon.fire_prev_time = rl.GetTime()
+
+		origin.X = player.pos.X - 15
+		projectile := Projectile{enabled: true, pos: origin, dir: rl.Vector2(weapon.conf.ProjectileDirection), velocity: weapon.conf.ProjectileVelocity}
+		*projectiles = append(*projectiles, projectile)
+
+		origin.X = player.pos.X + 15
+		dir2 := rl.Vector2{X: -weapon.conf.ProjectileDirection.X, Y: weapon.conf.ProjectileDirection.Y}
+		projectile = Projectile{enabled: true, pos: origin, dir: dir2, velocity: weapon.conf.ProjectileVelocity}
+		*projectiles = append(*projectiles, projectile)
+	}
+}
+
+func configWeaponGet(config *Config, name string) *WeaponConfig {
+
+	for i := 0; i < len(config.Weapons); i++ {
+		if config.Weapons[i].Name == name {
+			return &config.Weapons[i]
+		}
+	}
+	return nil
+}
+
+func configFileCheck() time.Time {
+	fileInfo, err := os.Stat("config.json")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -242,42 +294,18 @@ func config_check() time.Time {
 	return fileInfo.ModTime()
 }
 
-func config_load() {
+func configFileLoad() {
 
-	file, err := os.Open("1942.conf")
+	jsonFile, err := os.Open("config.json")
 	if err != nil {
-		log.Fatalf("Error when opening file: %s", err)
+		fmt.Println(err)
 	}
-	fileScanner := bufio.NewScanner(file)
-	fileScanner.Split(bufio.ScanWords)
+	defer jsonFile.Close()
 
-	field_name := ""
-	for fileScanner.Scan() {
-		if field_name == "" {
-			field_name = fileScanner.Text()
-		} else {
-			value_text := fileScanner.Text()
-			switch field_name {
-			case "player_velocity":
-				val, _ := strconv.ParseInt(value_text, 10, 32)
-				config.player_velocity = float32(val)
-			case "player_fire_rate":
-				val, _ := strconv.ParseInt(value_text, 10, 32)
-				config.player_fire_rate = int(val)
-			case "projectile_velocity":
-				val, _ := strconv.ParseInt(value_text, 10, 32)
-				config.projectile_velocity = float32(val)
-			case "bonus_velocity":
-				val, _ := strconv.ParseInt(value_text, 10, 32)
-				config.bonus_velocity = float32(val)
-			}
-			field_name = ""
-		}
+	byteValue, _ := io.ReadAll(jsonFile)
+	err = json.Unmarshal(byteValue, &config)
+	if err != nil {
+		panic(err)
 	}
-
-	if err := fileScanner.Err(); err != nil {
-		log.Fatalf("Error while reading file: %s", err)
-	}
-
-	file.Close()
+	fmt.Printf("%+v\n", config)
 }
