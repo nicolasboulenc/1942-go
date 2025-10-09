@@ -172,6 +172,12 @@ func gameInit() {
 	debug.conf_prev_time = configFileCheck()
 	configFileLoad()
 
+	tileMap := LoadTileMap("map.json")
+	fmt.Printf("%+v\n", tileMap)
+
+	tileset := LoadTileSet("ground.json")
+	fmt.Printf("%+v\n", tileset)
+
 	player = Player{pos: rl.Vector2{X: 100, Y: 100}, dir: rl.Vector2{X: 0, Y: 0}, velocity_modifier: 1, fire_rate_modifier: 1, is_firing: false, weapons: make([]Weapon, 0, 3)}
 	game_state = GameState{in_menu: true, is_paused: true, screen_width: 640, screen_height: 480}
 	projectiles = make([]Projectile, 0, 10)
