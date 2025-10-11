@@ -88,6 +88,8 @@ var game_state GameState
 var projectiles []Projectile
 var debug Debug
 var config Config
+var tileMap *TileMap
+var tileSet *TileSet
 
 func main() {
 
@@ -99,6 +101,7 @@ func main() {
 
 	buffer := rl.LoadRenderTexture(game_state.screen_width, game_state.screen_height)
 	texture := rl.LoadTexture("images/UK_Spitfire.png") // Texture loading
+	atlas := rl.LoadTexture(tileSet.Image)
 
 	rl.SetTargetFPS(60)
 
@@ -146,6 +149,17 @@ func main() {
 		rl.BeginTextureMode(buffer)
 		rl.ClearBackground(rl.RayWhite)
 
+		src := rl.Rectangle{X: 0, Y: 0, Width: float32(tileMap.TileWidth), Height: float32(tileMap.TileHeight)}
+		dst := rl.Vector2{X: 0, Y: 0}
+		for i := 0; i < len(tileMap.Layers[0].Data); i++ {
+			tileId := tileMap.Layers[0].Data[i] - 1
+			src.X = float32(tileId % tileSet.ImageWidth * tileSet.TileWidth)
+			src.Y = float32(int(tileId/tileSet.ImageHeight) * tileSet.TileHeight)
+			dst.X = float32(i % tileMap.Width * tileMap.TileWidth)
+			dst.Y = float32(int(i/tileMap.Height) * tileMap.TileHeight)
+			rl.DrawTextureRec(atlas, src, dst, rl.White)
+		}
+
 		rl.DrawTexture(texture, int32(player.pos.X)-texture.Width/2, int32(player.pos.Y)-texture.Height/2, rl.White)
 
 		for i := 0; i < len(projectiles); i++ {
@@ -172,14 +186,14 @@ func gameInit() {
 	debug.conf_prev_time = configFileCheck()
 	configFileLoad()
 
-	tileMap := LoadTileMap("map.json")
+	tileMap = LoadTileMap("map.json")
 	fmt.Printf("%+v\n", tileMap)
 
-	tileset := LoadTileSet("ground.json")
-	fmt.Printf("%+v\n", tileset)
+	tileSet = LoadTileSet("tileset.json")
+	fmt.Printf("%+v\n", tileSet)
 
 	player = Player{pos: rl.Vector2{X: 100, Y: 100}, dir: rl.Vector2{X: 0, Y: 0}, velocity_modifier: 1, fire_rate_modifier: 1, is_firing: false, weapons: make([]Weapon, 0, 3)}
-	game_state = GameState{in_menu: true, is_paused: true, screen_width: 640, screen_height: 480}
+	game_state = GameState{in_menu: true, is_paused: true, screen_width: 800, screen_height: 600}
 	projectiles = make([]Projectile, 0, 10)
 
 	weaponConf := configWeaponGet(&config, "alternate")
