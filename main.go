@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"os"
 	"time"
 
@@ -153,10 +154,10 @@ func main() {
 		dst := rl.Vector2{X: 0, Y: 0}
 		for i := 0; i < len(tileMap.Layers[0].Data); i++ {
 			tileId := tileMap.Layers[0].Data[i] - 1
-			src.X = float32(tileId % tileSet.ImageWidth * tileSet.TileWidth)
-			src.Y = float32(int(tileId/tileSet.ImageHeight) * tileSet.TileHeight)
+			src.X = float32(tileId % tileSet.Columns * tileSet.TileWidth)
+			src.Y = float32(math.Floor(float64(tileId)/float64(tileSet.Columns)) * float64(tileSet.TileHeight))
 			dst.X = float32(i % tileMap.Width * tileMap.TileWidth)
-			dst.Y = float32(int(i/tileMap.Height) * tileMap.TileHeight)
+			dst.Y = float32(math.Floor(float64(i)/float64(tileMap.Width)) * float64(tileMap.TileHeight))
 			rl.DrawTextureRec(atlas, src, dst, rl.White)
 		}
 
