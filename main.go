@@ -187,10 +187,10 @@ func gameInit() {
 	debug.conf_prev_time = configFileCheck()
 	configFileLoad()
 
-	tileMap = LoadTileMap("map.json")
+	tileMap = LoadTileMap("data/map.json")
 	fmt.Printf("%+v\n", tileMap)
 
-	tileSet = LoadTileSet("tileset.json")
+	tileSet = LoadTileSet("data/tileset.json")
 	fmt.Printf("%+v\n", tileSet)
 
 	player = Player{pos: rl.Vector2{X: 100, Y: 100}, dir: rl.Vector2{X: 0, Y: 0}, velocity_modifier: 1, fire_rate_modifier: 1, is_firing: false, weapons: make([]Weapon, 0, 3)}
@@ -307,7 +307,7 @@ func configWeaponGet(config *Config, name string) *WeaponConfig {
 }
 
 func configFileCheck() time.Time {
-	fileInfo, err := os.Stat("config.json")
+	fileInfo, err := os.Stat("data/config.json")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -317,7 +317,7 @@ func configFileCheck() time.Time {
 
 func configFileLoad() {
 
-	jsonFile, err := os.Open("config.json")
+	jsonFile, err := os.Open("data/config.json")
 	if err != nil {
 		fmt.Println(err)
 	}

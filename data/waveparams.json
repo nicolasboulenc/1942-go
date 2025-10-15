@@ -1,0 +1,212 @@
+[
+  {
+    "id": 0,
+    "type": "TILE_GRASS",
+    "desc": [ "GRASS", "GRASS", "GRASS", "GRASS" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_WATER",
+    "desc": [ "WATER", "WATER", "WATER", "WATER" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_FOREST",
+    "desc": [ "FOREST", "FOREST", "FOREST", "FOREST" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_COAST_N",
+    "desc": [ "GRASS", "COAST_N", "WATER", "COAST_N" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_COAST_E",
+    "desc": [ "COAST_E", "GRASS", "COAST_E", "WATER" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_COAST_S",
+    "desc": [ "WATER", "COAST_S", "GRASS", "COAST_S" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_COAST_W",
+    "desc": [ "COAST_W", "WATER", "COAST_W", "GRASS" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_COAST_NE",
+    "desc": [ "GRASS", "GRASS", "COAST_E", "COAST_N" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_COAST_SE",
+    "desc": [ "COAST_E", "GRASS", "GRASS", "COAST_S" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_COAST_SW",
+    "desc": [ "COAST_W", "COAST_S", "GRASS", "GRASS" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_COAST_NW",
+    "desc": [ "GRASS", "COAST_N", "COAST_W", "GRASS" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_COAST_NE2",
+    "desc": [ "COAST_E", "COAST_N", "WATER", "WATER" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_COAST_SE2",
+    "desc": [ "WATER", "COAST_S", "COAST_E", "WATER" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_COAST_SW2",
+    "desc": [ "WATER", "WATER", "COAST_W", "COAST_S" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_COAST_NW2",
+    "desc": [ "COAST_W", "WATER", "WATER", "COAST_N" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_ROCK_N",
+    "desc": [ "ROCK", "ROCK_N", "GRASS", "ROCK_N" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_ROCK_E",
+    "desc": [ "ROCK_E", "ROCK", "ROCK_E", "GRASS" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_ROCK_S",
+    "desc": [ "GRASS", "ROCK_S", "ROCK", "ROCK_S" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_ROCK_W",
+    "desc": [ "ROCK_W", "GRASS", "ROCK_W", "ROCK" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_ROCK_NE",
+    "desc": [ "ROCK_E", "ROCK_N", "GRASS", "GRASS" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_ROCK_SE",
+    "desc": [ "GRASS", "ROCK_S", "ROCK_E", "GRASS" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_ROCK_SW",
+    "desc": [ "GRASS", "GRASS", "ROCK_W", "ROCK_S" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_ROCK_NW",
+    "desc": [ "ROCK_W", "GRASS", "GRASS", "ROCK_N" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_FOREST_N",
+    "desc": [ "FOREST", "FOREST_N", "GRASS", "FOREST_N" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_FOREST_E",
+    "desc": [ "FOREST_E", "FOREST", "FOREST_E", "GRASS" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_FOREST_S",
+    "desc": [ "GRASS", "FOREST_S", "FOREST", "FOREST_S" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_FOREST_W",
+    "desc": [ "FOREST_W", "GRASS", "FOREST_W", "FOREST" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_FOREST_NE",
+    "desc": [ "FOREST_E", "FOREST_N", "GRASS", "GRASS" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_FOREST_SE",
+    "desc": [ "GRASS", "FOREST_S", "FOREST_E", "GRASS" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_FOREST_SW",
+    "desc": [ "GRASS", "GRASS", "FOREST_W", "FOREST_S" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_FOREST_NW",
+    "desc": [ "FOREST_W", "GRASS", "GRASS", "FOREST_N" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_FOREST_NE2",
+    "desc": [ "FOREST", "FOREST", "FOREST_E", "FOREST_N" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_FOREST_SE2",
+    "desc": [ "FOREST_E", "FOREST", "FOREST", "FOREST_S" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_FOREST_SW2",
+    "desc": [ "FOREST_W", "FOREST_S", "FOREST", "FOREST" ],
+    "weight": 10
+  },
+  {
+    "id": 0,
+    "type": "TILE_FOREST_NW2",
+    "desc": [ "FOREST", "FOREST_N", "FOREST_W", "FOREST" ],
+    "weight": 10
+  }
+]

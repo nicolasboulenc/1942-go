@@ -10,20 +10,26 @@ import (
 )
 
 type TileSet struct {
-	Columns      int    `json:"columns"`
-	Image        string `json:"image"`
-	ImageHeight  int    `json:"imageheight"`
-	ImageWidth   int    `json:"imagewidth"`
-	Margin       int    `json:"margin"`
-	Name         string `json:"name"`
-	Spacing      int    `json:"spacing"`
-	TileCount    int    `json:"tilecount"`
-	TileHeight   int    `json:"tileheight"`
-	TileWidth    int    `json:"tilewidth"`
-	Type         string `json:"type"`
-	Version      string `json:"version"`
-	TiledVersion string `json:"tiledversion"`
+	Columns      int           `json:"columns"`
+	Image        string        `json:"image"`
+	ImageHeight  int           `json:"imageheight"`
+	ImageWidth   int           `json:"imagewidth"`
+	Margin       int           `json:"margin"`
+	Name         string        `json:"name"`
+	Spacing      int           `json:"spacing"`
+	Tiles        []TileSetTile `json:"tiles"`
+	TileCount    int           `json:"tilecount"`
+	TileHeight   int           `json:"tileheight"`
+	TileWidth    int           `json:"tilewidth"`
+	Type         string        `json:"type"`
+	Version      string        `json:"version"`
+	TiledVersion string        `json:"tiledversion"`
 	Texture      rl.Texture2D
+}
+
+type TileSetTile struct {
+	ID   int    `json:"id"`
+	Type string `json:"type"`
 }
 
 type TileMap struct {
