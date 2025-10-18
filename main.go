@@ -187,10 +187,10 @@ func gameInit() {
 	debug.conf_prev_time = configFileCheck()
 	configFileLoad()
 
-	tileMap = LoadTileMap("data/map.json")
+	tileMap = LoadTileMap("map.json")
 	fmt.Printf("%+v\n", tileMap)
 
-	tileSet = LoadTileSet("data/tileset.json")
+	tileSet = LoadTileSet("tileset.json")
 	fmt.Printf("%+v\n", tileSet)
 
 	player = Player{pos: rl.Vector2{X: 100, Y: 100}, dir: rl.Vector2{X: 0, Y: 0}, velocity_modifier: 1, fire_rate_modifier: 1, is_firing: false, weapons: make([]Weapon, 0, 3)}
