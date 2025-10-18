@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -82,6 +83,10 @@ func LoadTileSet(filename string) *TileSet {
 		panic(err)
 	}
 
+	tileset.Image, err = filepath.Abs(tileset.Image)
+	if err != nil {
+		fmt.Println(err)
+	}
 	return tileset
 }
 
@@ -99,6 +104,13 @@ func LoadTileMap(filename string) *TileMap {
 	err = json.Unmarshal(byteValue, tilemap)
 	if err != nil {
 		panic(err)
+	}
+
+	for _, tileset := range tilemap.TileSets {
+		tileset.Source, err = filepath.Abs(tileset.Source)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 
 	return tilemap

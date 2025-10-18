@@ -28,7 +28,8 @@ var tileEdges = map[string]int{
 }
 
 type WaveParams struct {
-	Data []WaveTile `json:"data"`
+	Weight_Sum int        `json:"weight_sum"`
+	Data       []WaveTile `json:"data"`
 }
 
 type WaveTile struct {
@@ -55,12 +56,18 @@ func WaveLoadParams(filename string) *WaveParams {
 		panic(err)
 	}
 
+	sum := 0
+	for _, tile := range params.Data {
+		sum += tile.Weight
+	}
+	params.Weight_Sum = sum
+
 	return params
 }
 
 func WaveInit(tileSet *TileSet) {
 
-	waveParams = WaveLoadParams("waveparams.json")
+	waveParams = WaveLoadParams("data/waveparams.json")
 	WaveGetTileIds(tileSet, waveParams)
 }
 
@@ -80,7 +87,16 @@ func WaveGetTileIds(tileset *TileSet, waveParams *WaveParams) {
 
 func WaveGenerate(columns int, rows int) *[]int {
 
-	// grid := make([]int, columns*rows)
+	grid := make([]string, columns*rows)
+	possibilities := make([][]string, columns*rows)
+
+	// calc entropy
+	for y := 0; y < rows; y++ {
+		for x := 0; x < rows; x++ {
+			current := grid[y*columns+x]
+
+		}
+	}
 
 	// r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	// i := r.Intn(columns * rows)

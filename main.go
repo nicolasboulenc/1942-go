@@ -94,12 +94,12 @@ var tileSet *TileSet
 
 func main() {
 
-	gameInit()
-
+	windowInit()
 	rl.SetConfigFlags(rl.FlagWindowHighdpi)
 	rl.InitWindow(game_state.screen_width, game_state.screen_height, "1942-go")
 	rl.SetWindowPosition(10, 10)
 
+	gameInit()
 	buffer := rl.LoadRenderTexture(game_state.screen_width, game_state.screen_height)
 	texture := rl.LoadTexture("images/UK_Spitfire.png") // Texture loading
 	atlas := rl.LoadTexture(tileSet.Image)
@@ -182,19 +182,25 @@ func main() {
 	rl.CloseWindow()
 }
 
-func gameInit() {
+func windowInit() {
 
 	debug.conf_prev_time = configFileCheck()
 	configFileLoad()
 
-	tileMap = LoadTileMap("map.json")
+	game_state = GameState{in_menu: true, is_paused: true, screen_width: 800, screen_height: 600}
+}
+
+func gameInit() {
+
+	tileMap = LoadTileMap("data/map.json")
 	fmt.Printf("%+v\n", tileMap)
 
-	tileSet = LoadTileSet("tileset.json")
+	tileSet = LoadTileSet("data/tileset.json")
 	fmt.Printf("%+v\n", tileSet)
 
+	WaveInit(tileSet)
+
 	player = Player{pos: rl.Vector2{X: 100, Y: 100}, dir: rl.Vector2{X: 0, Y: 0}, velocity_modifier: 1, fire_rate_modifier: 1, is_firing: false, weapons: make([]Weapon, 0, 3)}
-	game_state = GameState{in_menu: true, is_paused: true, screen_width: 800, screen_height: 600}
 	projectiles = make([]Projectile, 0, 10)
 
 	weaponConf := configWeaponGet(&config, "alternate")
